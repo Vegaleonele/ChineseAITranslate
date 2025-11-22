@@ -22,11 +22,6 @@
     </script>
 
     <style>
-        /* Import Font: 
-           - Inter: Cho tiếng Việt
-           - Outfit: Cho tiêu đề AI Translate
-           - Noto Sans SC: Cho tiếng Trung
-        */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Outfit:wght@700;800&display=swap');
 
         body {
@@ -51,7 +46,6 @@
             background-position: 0 0,10px 10px;
         }
         
-        /* Animations */
         @keyframes slide-up {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -71,12 +65,11 @@
         const { useState, useEffect, useRef } = React;
 
         // =========================================================================
-        // KHU VỰC CẤU HÌNH KEY (DÀNH CHO NGƯỜI DÙNG MUỐN CÀI SẴN)
-        // Lưu ý: Nếu bạn để lộ file này công khai, người khác có thể thấy Key của bạn.
-        // Hãy dán Key vào giữa hai dấu ngoặc kép bên dưới nếu muốn dùng luôn.
+        // ▼ DÁN API KEY CỦA BẠN VÀO GIỮA HAI DẤU NGOẶC KÉP BÊN DƯỚI ▼
         // =========================================================================
-        const HARD_CODED_API_KEY = ""; 
+        const HARD_CODED_API_KEY = "AIzaSyBHB0pPYBEXsXdDTs8OsaF5iTEqqqlPHNE"; 
         // Ví dụ: const HARD_CODED_API_KEY = "AIzaSyDxxxxxxxxxxxx";
+        // =========================================================================
 
         // --- DỮ LIỆU MẪU OFFLINE ---
         const OFFLINE_DICT = {
@@ -113,13 +106,10 @@
 
         const Header = ({ onSettingsClick, hasKey }) => (
             <div className="bg-gradient-to-br from-indigo-900 to-blue-800 pt-8 pb-10 px-6 rounded-b-[2.5rem] relative shadow-xl shrink-0">
-                {/* Watermark Tác Giả - VegaDLeonele */}
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 opacity-40 text-[10px] text-white uppercase tracking-[0.3em] font-light z-20">
                     By VegaDLeonele
                 </div>
-
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-8 -mt-8 blur-2xl"></div>
-                
                 <div className="flex justify-between items-center relative z-10 text-white mt-2">
                     <div>
                         <h1 className="text-3xl font-extrabold title-font tracking-wide uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
@@ -159,10 +149,9 @@
                         <h3 className="text-lg font-bold text-gray-800 mb-2">Cài đặt API Key</h3>
                         <p className="text-sm text-gray-500 mb-4">
                             {HARD_CODED_API_KEY 
-                                ? "Đã phát hiện Key cài sẵn trong code." 
-                                : "Dán mã API Key của bạn vào đây để sử dụng."}
+                                ? "Đang sử dụng Key được cài sẵn trong code." 
+                                : "Chưa tìm thấy Key cài sẵn. Vui lòng nhập Key:"}
                         </p>
-                        
                         <input 
                             type="password"
                             value={keyInput}
@@ -170,15 +159,13 @@
                             placeholder="Dán API Key (AIzaSy...)"
                             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm mb-4 focus:outline-none focus:border-blue-800 transition"
                         />
-                        
                         <div className="flex gap-3">
                             <button onClick={onClose} className="flex-1 py-2.5 text-gray-500 font-medium text-sm hover:bg-gray-50 rounded-xl">Đóng</button>
                             <button onClick={saveKey} className="flex-1 py-2.5 bg-blue-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-blue-200">Lưu Key</button>
                         </div>
-                        
                         <div className="mt-4 pt-4 border-t border-gray-100 text-center">
                             <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-xs text-blue-600 hover:underline font-medium flex items-center justify-center gap-1">
-                                Chưa có Key? Lấy miễn phí tại đây <i data-lucide="external-link" className="w-3 h-3"></i>
+                                Lấy API Key mới <i data-lucide="external-link" className="w-3 h-3"></i>
                             </a>
                         </div>
                     </div>
@@ -190,14 +177,15 @@
             const [text, setText] = useState("");
             const [result, setResult] = useState(null);
             const [loading, setLoading] = useState(false);
-            // Ưu tiên Key người dùng nhập tay (localStorage), nếu không có thì dùng Key cài sẵn (Hardcoded)
-            const [apiKey, setApiKey] = useState(localStorage.getItem("gemini_key") || HARD_CODED_API_KEY || "AIzaSyBHB0pPYBEXsXdDTs8OsaF5iTEqqqlPHNE");
+            
+            // --- SỬA LỖI CHÍNH: Ưu tiên HARD_CODED_API_KEY trước, sau đó mới tới localStorage ---
+            const [apiKey, setApiKey] = useState(HARD_CODED_API_KEY || localStorage.getItem("gemini_key") || "");
+            
             const [showSetup, setShowSetup] = useState(false);
             const [tab, setTab] = useState("meaning");
 
             useEffect(() => { lucide.createIcons(); }, [result, showSetup, apiKey]);
             
-            // Khi apiKey thay đổi, lưu vào localStorage
             useEffect(() => { 
                 if (apiKey) localStorage.setItem("gemini_key", apiKey); 
             }, [apiKey]);
@@ -205,7 +193,6 @@
             const handleTranslate = async () => {
                 if (!text.trim()) return;
 
-                // Check Offline Dict
                 if (OFFLINE_DICT[text.trim()]) {
                     setLoading(true);
                     setTimeout(() => { setResult(OFFLINE_DICT[text.trim()]); setLoading(false); }, 500);
@@ -227,7 +214,13 @@
                     setResult(JSON.parse(jsonText));
                 } catch (e) {
                     console.error(e);
-                    alert("Lỗi kết nối AI. Vui lòng kiểm tra lại API Key.");
+                    // Hiển thị thông báo lỗi chi tiết hơn
+                    let errorMsg = "Lỗi kết nối AI!";
+                    if (e.message.includes("400")) errorMsg = "Lỗi Key hoặc Cú pháp (400). Kiểm tra lại API Key.";
+                    if (e.message.includes("403")) errorMsg = "Quyền truy cập bị từ chối (403). Key không hợp lệ.";
+                    if (e.message.includes("fetch")) errorMsg = "Lỗi mạng. Kiểm tra kết nối internet.";
+                    
+                    alert(`${errorMsg}\nChi tiết: ${e.message}`);
                     setShowSetup(true);
                 } finally {
                     setLoading(false);
@@ -239,7 +232,6 @@
                     <Header onSettingsClick={() => setShowSetup(true)} hasKey={!!apiKey} />
                     
                     <div className="flex-1 overflow-y-auto px-4 py-6 -mt-8 z-20 no-scrollbar pb-20">
-                        {/* Input Area */}
                         <div className="bg-white p-5 rounded-2xl shadow-lg border border-gray-100 mb-6">
                             <textarea 
                                 className="w-full text-xl chinese-font outline-none resize-none text-gray-800 placeholder-gray-300 bg-transparent" 
@@ -259,7 +251,6 @@
                             </div>
                         </div>
 
-                        {/* Result Area */}
                         {loading && <LoadingSpinner />}
                         
                         {result && !loading && (
