@@ -106,9 +106,10 @@
                 
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
-                    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+                    // SỬA LỖI: Đổi sang model 'gemini-2.5-flash' để tránh lỗi 404
+                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
                     
-                    console.log("Đang gửi request tới Google (Model: gemini-pro)...");
+                    console.log("Đang gửi request tới Google (Model: gemini-2.5-flash)...");
                     const res = await model.generateContent(`${SYSTEM_PROMPT}\n\nVăn bản: "${text}"`);
                     const responseText = res.response.text();
                     console.log("Nhận phản hồi:", responseText);
@@ -120,7 +121,7 @@
                     console.error("Lỗi chi tiết:", e);
                     let msg = `Lỗi kết nối AI!\n\nChi tiết: ${e.message || e.toString()}`;
                     
-                    if (e.message.includes("404")) msg += "\n\nLÝ DO: Model không tìm thấy. Đã tự động chuyển về gemini-pro.";
+                    if (e.message.includes("404")) msg += "\n\nLÝ DO: Model không tìm thấy. Đã tự động chuyển về gemini-2.5-flash.";
                     if (e.message.includes("403")) msg += "\n\nLÝ DO: Key sai hoặc vị trí địa lý bị chặn.";
                     if (e.message.includes("400")) msg += "\n\nLÝ DO: Key không hợp lệ (API_KEY_INVALID).";
 
