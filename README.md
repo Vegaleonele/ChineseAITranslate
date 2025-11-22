@@ -1,0 +1,2 @@
+# ChineseAITranslate
+Prototype_ChineseAI
